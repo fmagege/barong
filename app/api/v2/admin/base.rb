@@ -3,7 +3,7 @@
 require_dependency 'barong/middleware/jwt_authenticator'
 
 module API::V2
-  module Resource
+  module Admin
     class Base < Grape::API
       use Barong::Middleware::JWTAuthenticator, \
         pubkey: Rails.configuration.x.keystore.public_key
@@ -17,6 +17,10 @@ module API::V2
       helpers API::V2::Resource::Utils
 
       do_not_route_options!
+
+      before do
+        error!('Access Denied: User is not Admin', 401) unless current_user.role.admin?
+      end
 
       rescue_from(ActiveRecord::RecordNotFound) do |_e|
         error!('Record is not found', 404)
@@ -45,14 +49,9 @@ module API::V2
         error!('Something went wrong', 500)
       end
 
-      mount Resource::Users
-      mount Resource::Profiles
-      mount Resource::Documents
-      mount Resource::Phones
-      mount Resource::Otp
-      mount Resource::APIKeys
+      mount Admin::Users
 
-      add_swagger_documentation base_path: '/resource',
+      add_swagger_documentation base_path: '/admin',
       info: {
         title: 'Barong',
         description: 'Protected API for barong OAuth server '
