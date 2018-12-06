@@ -33,20 +33,30 @@ module API::V2
       mount API::V2::Management::Users
       mount API::V2::Management::Tools
 
-      add_swagger_documentation base_path: nil,
-                                info: {
-                                  title: 'Management API v1',
-                                  description: 'Management API is server-to-server API with high privileges'
-                                },
-                                api_version: 'v2',
-                                doc_version: '2.0', # Used to be Barong::Version 
-                                hide_format: true,
-                                hide_documentation_path: true,
-                                mount_path: '/swagger_doc'
-
-      route :any, '*path' do
-        error! 'Unable to find endpoint', 404
-      end
+      add_swagger_documentation base_path: '/management',
+      info: {
+        title: 'Barong',
+        description: 'Management API for barong OAuth server '
+      },
+      security_definitions: {
+        "BearerToken": {
+          description: 'Bearer Token authentication',
+          type: 'jwt',
+          name: 'Authorization',
+          in: 'header'
+        }
+      },
+      models: [
+        Entities::Label,
+        Entities::APIKey,
+        Entities::Profile,
+        Entities::UserWithProfile
+      ],
+      api_version: 'v2',
+      doc_version: '2.0.8-alpha', # Used to be BARONG::VERSION
+      hide_format: true,
+      hide_documentation_path: true,
+      mount_path: '/swagger_doc'
     end
   end
 end

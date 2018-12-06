@@ -9,7 +9,7 @@ module API::V2
       mattr_accessor :security_configuration
 
       def before
-        return if request.path == '/api/v2/swagger_doc'
+        return if request.path == '/api/v2/management/swagger_doc'
         check_request_method!
         check_query_parameters!
         check_content_type!
@@ -36,7 +36,7 @@ module API::V2
       memoize :jwt
 
       def check_request_method!
-        return if request.post? || request.put?
+        return if request.post? || request.put? || request.path == '/api/v2/management/swagger_doc'
 
         raise Exceptions::Authentication, \
               message: 'Only POST and PUT verbs are allowed.',

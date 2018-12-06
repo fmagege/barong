@@ -22,7 +22,7 @@ module API::V2
       rescue_from(Grape::Exceptions::ValidationErrors) do |error|
         error!(error.message, 400)
       end
-      
+
       rescue_from(JWT::DecodeError) do |error|
         error!("Failed to decode and verify JWT", 403)
       end
@@ -36,9 +36,16 @@ module API::V2
       mount Identity::Sessions
       mount Identity::Users
 
-      route :any, '*path' do
-        error! 'Route is not found', 404
-      end
+      add_swagger_documentation base_path: '/identity',
+      info: {
+        title: 'Barong',
+        description: 'Public API for barong OAuth server '
+      },
+      api_version: 'v2',
+      doc_version: '2.0.8-alpha', # Used to be BARONG::VERSION
+      hide_format: true,
+      hide_documentation_path: true,
+      mount_path: '/swagger_doc'
     end
   end
 end

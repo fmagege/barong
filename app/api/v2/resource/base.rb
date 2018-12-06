@@ -26,6 +26,10 @@ module API::V2
         error!(error.message, 400)
       end
 
+      format         :json
+      content_type   :json, 'application/json'
+      default_format :json
+
       rescue_from Peatio::Auth::Error do |e|
         if Rails.env.production?
           error!('Permission Denied', 401)
@@ -52,9 +56,30 @@ module API::V2
       mount Resource::Otp
       mount Resource::APIKeys
 
-      route :any, '*path' do
-        error! 'Route is not found', 404
-      end
+      add_swagger_documentation base_path: '/resource',
+      info: {
+        title: 'Barong',
+        description: 'Protected API for barong OAuth server '
+      },
+      security_definitions: {
+        "BearerToken": {
+          description: 'Bearer Token authentication',
+          type: 'jwt',
+          name: 'Authorization',
+          in: 'header'
+        }
+      },
+      models: [
+        Entities::Label,
+        Entities::APIKey,
+        Entities::Profile,
+        Entities::UserWithProfile
+      ],
+      api_version: 'v2',
+      doc_version: '2.0.8-alpha', # Used to be BARONG::VERSION
+      hide_format: true,
+      hide_documentation_path: true,
+      mount_path: '/swagger_doc'
     end
   end
 end
